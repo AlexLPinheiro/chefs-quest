@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { formatSecondsToMinutes } from "@/lib/utils/format-time";
 import { Clock , Lock} from "lucide-react";
 import { cn } from "@/lib/utils/tailwind-helper";
-import { title } from "process";
 
-type PhaseCardVariant = "available" | "locked";
+export type PhaseCardVariant = "available" | "locked";
 
 type PhaseCardProps = {
     duration: number;
@@ -15,6 +14,8 @@ type PhaseCardProps = {
     name: string;
     variant?: PhaseCardVariant;
 };
+
+
 
 const phaseCardVariants = {
     available: {
@@ -36,9 +37,11 @@ const phaseCardVariants = {
 
 
 
-export default function PhaseCard({ duration, image, name, variant = "available"}: PhaseCardProps) {
+export default function PhaseCard({ duration, image, name, variant }: PhaseCardProps) {
 
-    const styles = phaseCardVariants[variant];
+    const availability = variant? variant : "available"  
+
+    const styles = phaseCardVariants[availability];
     const isLocked = variant === "locked";
 
     return (
@@ -58,7 +61,7 @@ export default function PhaseCard({ duration, image, name, variant = "available"
         <Image
           src={image}
           alt={name}
-          width={220}
+          width={200}
           height={200}
           className={styles.image}
         />

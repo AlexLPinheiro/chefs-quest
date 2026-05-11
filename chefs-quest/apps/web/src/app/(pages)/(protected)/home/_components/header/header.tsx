@@ -9,7 +9,7 @@ type HeaderProps = {
 }
 
 
-export default function Header({level, progress}:HeaderProps){
+export default function Header({level}:HeaderProps){
     return(
         <nav className='w-full h-30 flex bg-white rounded-b-4xl shadow-lg'>
             <ul className='w-full flex items-center justify-around'>
