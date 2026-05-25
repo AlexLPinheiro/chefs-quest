@@ -18,12 +18,11 @@ interface LoginPageProps {
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-    const params = await searchParams;
-    const callbackUrl = params.callbackurl;
+    await searchParams;
 
     return(
         <Suspense fallback={<Loading/>}>
-            <FormLogin callbackurl={callbackUrl} />
+            <FormLogin />
         </Suspense>
     )
 }

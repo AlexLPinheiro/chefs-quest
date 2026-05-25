@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Header from "./(protected)/home/_components/header/header";
-import styles from "./pages-layout.module.css";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -12,13 +10,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <div className={styles.layout}>
-      <header>
-        <Header level={1} progress={20}></Header>
-      </header>
-
-      {children}
-    </div>
-  );
+  return children;
 }
