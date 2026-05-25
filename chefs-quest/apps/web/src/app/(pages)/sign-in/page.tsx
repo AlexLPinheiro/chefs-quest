@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 import FormLogin from "./_components/form-login";
+import styles from "./sign-in.module.css";
 
 function Loading() {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
-            <p className="mt-4 text-lg text-gray-700">Preparing login...</p>
+        <div className={styles.loading}>
+            <p className={styles.loadingText}>Preparing login...</p>
         </div>
 
     );

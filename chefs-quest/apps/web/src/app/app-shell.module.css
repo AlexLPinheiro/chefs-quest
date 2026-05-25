@@ -1,0 +1,35 @@
+:global(:root) {
+  --font-app-sans: Arial, Helvetica, sans-serif;
+  --font-app-mono: "Courier New", Courier, monospace;
+  --foreground: #202020;
+  --background: #ffffff;
+  --color-yellow-15: #fbf5d0;
+  --color-rose-05: #fa8977;
+  --color-rose-10: #e9624f;
+  --color-gray-20: #6c6868;
+}
+
+:global(*) {
+  box-sizing: border-box;
+}
+
+:global(html) {
+  height: 100%;
+}
+
+:global(body) {
+  margin: 0;
+}
+
+.html {
+  height: 100%;
+  font-family: var(--font-app-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.body {
+  min-height: 100%;
+  background: var(--color-yellow-15);
+  color: var(--foreground);
+}

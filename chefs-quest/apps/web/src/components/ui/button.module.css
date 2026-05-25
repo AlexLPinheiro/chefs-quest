@@ -1,0 +1,136 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    opacity 0.2s ease, transform 0.2s ease;
+}
+
+.button:focus-visible {
+  outline: 2px solid #e9624f;
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.default {
+  min-width: 17.5rem;
+  background: #e9624f;
+  color: #ffffff;
+}
+
+.default:hover:not(:disabled) {
+  background: #fa8977;
+}
+
+.outline {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.outline:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.secondary {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.ghost {
+  background: transparent;
+  color: #111827;
+}
+
+.ghost:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.destructive {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.destructive:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.link {
+  padding: 0;
+  background: transparent;
+  color: #1f2937;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.link:hover:not(:disabled) {
+  color: #111827;
+}
+
+.size-default {
+  min-height: 2.75rem;
+}
+
+.size-xs {
+  min-height: 1.75rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.size-sm {
+  min-height: 2.25rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.size-lg {
+  min-height: 3rem;
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
+}
+
+.size-icon,
+.size-icon-xs,
+.size-icon-sm,
+.size-icon-lg {
+  aspect-ratio: 1;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.size-icon {
+  width: 2.25rem;
+}
+
+.size-icon-xs {
+  width: 1.5rem;
+}
+
+.size-icon-sm {
+  width: 2rem;
+}
+
+.size-icon-lg {
+  width: 2.5rem;
+}

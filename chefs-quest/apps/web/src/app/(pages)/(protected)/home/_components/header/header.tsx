@@ -2,6 +2,7 @@ import Avatar from '@/app/assets/image/avatar.png';
 import Logo from '@/app/assets/image/logo.png';
 import { Progress } from '@/components/ui/progress';
 import Image from 'next/image';
+import styles from './header.module.css';
 
 type HeaderProps = {
     level:number;
@@ -9,24 +10,24 @@ type HeaderProps = {
 }
 
 
-export default function Header({level}:HeaderProps){
+export default function Header({ level, progress }: HeaderProps){
     return(
-        <nav className='w-full h-30 flex bg-white rounded-b-4xl shadow-lg'>
-            <ul className='w-full flex items-center justify-around'>
-                <li className='bg-gray-20 rounded-full'>
+        <nav className={styles.nav}>
+            <ul className={styles.list}>
+                <li className={styles.avatarItem}>
                     <Image 
                         src={Avatar}
                         alt={"icone do usuario"}
                     />
                 </li>
 
-                <li className='flex flex-col gap-1.5 items-center'>
-                    <p>nivel {level}</p>
-                    <Progress className='w-30'></Progress>
+                <li className={styles.statusItem}>
+                    <p className={styles.level}>nivel {level}</p>
+                    <Progress className={styles.progress} value={progress}></Progress>
 
                 </li>
 
-                <li>
+                <li className={styles.logoItem}>
                     <Image
                         src={Logo}
                         alt='logo'
