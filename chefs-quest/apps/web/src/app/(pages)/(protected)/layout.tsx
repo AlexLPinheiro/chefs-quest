@@ -1,5 +1,6 @@
 import Header from "./home/_components/header/header";
 import styles from "../pages-layout.module.css";
+import BottomNav from "./_components/bottom-nav/bottom-nav";
 
 export default function ProtectedLayout({
   children,
@@ -13,6 +14,7 @@ export default function ProtectedLayout({
       </header>
 
       <main className={styles.content}>{children}</main>
+      <BottomNav />
     </div>
   );
 }
