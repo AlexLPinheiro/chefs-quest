@@ -4,6 +4,7 @@ import hamburguer from "@/app/assets/image/hambug.png";
 import lasanha from "@/app/assets/image/lasanha.png";
 import { PhaseCardVariant } from "./_components/phase-card/phase-card";
 import styles from "./home.module.css";
+import BottomNav from "@/components/shared/bottom-nav";
 
 type Fase = {
     id: number;
@@ -39,11 +40,13 @@ const fases: Fase[] = [
 
 export default function HomePage() {
     return(
-        <div className={styles.page}>
-            {fases.map((fase)=>(
-                <PhaseCard key={fase.id} duration={fase.duracao} image={fase.image} name={fase.name} variant={fase.variant}></PhaseCard>
-            ))}
-            
-        </div>
+        <>
+            <div className={styles.page}>
+                {fases.map((fase)=>(
+                    <PhaseCard key={fase.id} duration={fase.duracao} image={fase.image} name={fase.name} variant={fase.variant}></PhaseCard>
+                ))}
+            </div>
+            <BottomNav />
+        </>
     )
 }
