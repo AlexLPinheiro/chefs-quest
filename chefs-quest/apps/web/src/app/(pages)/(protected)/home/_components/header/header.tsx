@@ -1,3 +1,5 @@
+"use client";
+
 import Avatar from '@/app/assets/image/avatar.png';
 import Logo from '@/app/assets/image/logo.png';
 import { Progress } from '@/components/ui/progress';

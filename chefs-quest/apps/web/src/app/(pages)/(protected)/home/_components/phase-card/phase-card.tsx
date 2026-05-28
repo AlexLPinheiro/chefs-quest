@@ -1,6 +1,7 @@
 "use client";
 
 import Image, { StaticImageData } from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatSecondsToMinutes } from "@/lib/utils/format-time";
 import { Clock , Lock} from "lucide-react";
@@ -12,6 +13,7 @@ type PhaseCardProps = {
     duration: number;
     image: StaticImageData;
     name: string;
+  href?: string;
     variant?: PhaseCardVariant;
 };
 
@@ -20,7 +22,7 @@ type PhaseCardProps = {
 const phaseCardVariants = {
     available: {
     card: styles.available,
-        buttonText: "Buscar igredientes",
+      buttonText: "Cozinhar agora",
         disabled: false,
     },
     locked: {
@@ -33,7 +35,7 @@ const phaseCardVariants = {
 
 
 
-export default function PhaseCard({ duration, image, name, variant }: PhaseCardProps) {
+export default function PhaseCard({ duration, image, name, href, variant }: PhaseCardProps) {
 
     const availability = variant? variant : "available"  
 
@@ -64,8 +66,12 @@ export default function PhaseCard({ duration, image, name, variant }: PhaseCardP
 
         <h2 className={styles.title}>{name}</h2>
 
-        <Button disabled={variantStyles.disabled}>
-          {variantStyles.buttonText}
+        <Button asChild={!variantStyles.disabled} disabled={variantStyles.disabled}>
+          {variantStyles.disabled ? (
+            <button type="button">{variantStyles.buttonText}</button>
+          ) : (
+            <Link href={href ?? "/kitchen"}>{variantStyles.buttonText}</Link>
+          )}
         </Button>
       </div>
     </div>
