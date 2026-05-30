@@ -14,25 +14,25 @@ type HeaderProps = {
 
 export default function Header({ level, progress }: HeaderProps){
     return(
-        <nav className={styles.nav}>
+        <nav className={styles.nav} aria-label="Status do jogador">
             <ul className={styles.list}>
                 <li className={styles.avatarItem}>
                     <Image 
                         src={Avatar}
-                        alt={"icone do usuario"}
+                        alt={"Ícone do usuário"}
                     />
                 </li>
 
                 <li className={styles.statusItem}>
                     <p className={styles.level}>nivel {level}</p>
-                    <Progress className={styles.progress} value={progress}></Progress>
+                    <Progress className={styles.progress} value={progress} aria-label={`Progresso do nível: ${progress}%`}></Progress>
 
                 </li>
 
                 <li className={styles.logoItem}>
                     <Image
                         src={Logo}
-                        alt='logo'
+                        alt="Logo Chef's Quest"
                     />
                 </li>
             </ul>

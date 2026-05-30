@@ -4,6 +4,7 @@ import { database, phaseProgressTable, userTable, eq, and } from "@repo/db";
 import { getCurrentUserId, setCurrentUserId } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 
+// Cria ou encontra usuário pelo nome e salva sessão
 export async function loginUser(name: string) {
   let user = await database.query.userTable.findFirst({
     where: eq(userTable.name, name),
@@ -23,6 +24,7 @@ export async function loginUser(name: string) {
   return { success: true };
 }
 
+// Marca fase como concluída no banco (idempotente)
 export async function completePhase(phaseId: number) {
   const userId = await getCurrentUserId();
   if (!userId) {
@@ -52,6 +54,7 @@ export async function completePhase(phaseId: number) {
   return { success: true };
 }
 
+// Retorna nível e lista de fases concluídas do usuário
 export async function getUserProgress() {
   const userId = await getCurrentUserId();
   if (!userId) {

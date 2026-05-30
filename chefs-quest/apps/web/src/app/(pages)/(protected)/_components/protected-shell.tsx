@@ -13,13 +13,14 @@ export default function ProtectedShell({
   header: ReactNode;
 }) {
   const pathname = usePathname();
+  // Esconde header e ajusta padding quando está no fluxo da cozinha
   const isKitchenFlow = pathname.startsWith("/kitchen");
   const topPadding = isKitchenFlow ? "0.75rem" : "7rem";
   const contentStyle = { "--page-top-padding": topPadding } as CSSProperties;
 
   return (
     <div className={styles.layout}>
-      {!isKitchenFlow ? <header>{header}</header> : null}
+      {!isKitchenFlow ? <header aria-label="Cabeçalho do jogo">{header}</header> : null}
 
       <main className={styles.content} style={contentStyle}>
         {children}

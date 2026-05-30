@@ -70,3 +70,39 @@
   height: auto;
   object-fit: contain;
 }
+
+@media (min-width: 768px) {
+  .nav {
+    max-width: 48rem;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 0 0 2.5rem 2.5rem;
+  }
+
+  .progress {
+    width: 12rem;
+  }
+
+  .level {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nav {
+    max-width: 56rem;
+  }
+
+  .avatarItem {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .progress {
+    width: 16rem;
+  }
+
+  .logoItem img {
+    width: 5.5rem;
+  }
+}

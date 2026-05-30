@@ -74,3 +74,14 @@
   font-weight: 700;
   text-align: center;
 }
+
+@media (min-width: 768px) {
+  .card {
+    width: 100%;
+    min-height: 17rem;
+  }
+
+  .image {
+    width: 10rem;
+  }
+}

@@ -172,3 +172,31 @@
     margin-top: 2.35rem;
   }
 }
+
+@media (min-width: 768px) {
+  .hero {
+    width: min(100%, 28rem);
+  }
+
+  .panel {
+    min-height: min(75vh, 42rem);
+    padding: 3.5rem 2.5rem 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    width: min(100%, 30rem);
+  }
+
+  .panel {
+    min-height: min(70vh, 40rem);
+    border-radius: 2.5rem;
+  }
+
+  .primaryAction {
+    width: min(100%, 13rem);
+    min-height: 3.4rem;
+    font-size: 1.05rem;
+  }
+}

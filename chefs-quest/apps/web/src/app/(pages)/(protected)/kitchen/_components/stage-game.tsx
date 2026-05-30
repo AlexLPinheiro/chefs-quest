@@ -1,94 +1,38 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, CheckCircle2, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 import mapImage from "@/app/assets/image/mapa.png";
-import tomatoImage from "@/app/assets/image/tomate.png";
-import eggImage from "@/app/assets/image/ovo.png";
-import cheeseImage from "@/app/assets/image/queijo.png";
+import mapDesktopImage from "@/app/assets/image/mapa-desktop.png";
 import chefImage from "@/app/assets/image/avatar-complete.png";
+import {
+  HOME_POSITION,
+  MOVE_DURATION,
+  STORAGE_PREFIX,
+  ingredientCatalog,
+  getIngredientKey,
+  getStageObjective,
+  type IngredientKey,
+  type MapPoint,
+  type StageIngredient,
+} from "../_data/ingredients";
+import IngredientMarker from "./ingredient-marker";
+import ObjectiveList from "./objective-list";
+import FeedbackDialog from "./feedback-dialog";
+import CompletionBanner from "./completion-banner";
 import styles from "../kitchen.module.css";
 
 type StageGameProps = {
   phaseId: number;
   phaseName: string;
   ingredients: string[];
+  userId: string;
 };
 
-type IngredientKey = "tomate" | "ovo" | "queijo";
-
-type MapPoint = {
-  x: number;
-  y: number;
-};
-
-type StageIngredient = {
-  key: IngredientKey;
-  label: string;
-  image: StaticImageData;
-  target: number;
-  position: MapPoint;
-};
-
-const HOME_POSITION: MapPoint = { x: 80, y: 77 };
-const MOVE_DURATION = 1800;
-const STORAGE_PREFIX = "chefs-quest-kitchen-phase";
-
-const ingredientCatalog: Record<IngredientKey, StageIngredient> = {
-  tomate: {
-    key: "tomate",
-    label: "Tomate",
-    image: tomatoImage,
-    target: 1,
-    position: { x: 18, y: 40 },
-  },
-  ovo: {
-    key: "ovo",
-    label: "Ovo",
-    image: eggImage,
-    target: 1,
-    position: { x: 20, y: 70 },
-  },
-  queijo: {
-    key: "queijo",
-    label: "Queijo",
-    image: cheeseImage,
-    target: 1,
-    position: { x: 84, y: 46 },
-  },
-};
-
-function getIngredientKey(ingredient: string): IngredientKey | null {
-  const normalized = ingredient.toLowerCase();
-
-  if (normalized.includes("tomate")) {
-    return "tomate";
-  }
-
-  if (normalized.includes("ovo")) {
-    return "ovo";
-  }
-
-  if (normalized.includes("queijo")) {
-    return "queijo";
-  }
-
-  return null;
-}
-
-function getStageObjective(phaseId: number) {
-  if (phaseId === 1) {
-    return "Busque os ingredientes para cozinhar a macarronada.";
-  }
-
-  return "Explore o mapa e encontre todos os ingredientes da receita.";
-}
-
-export default function StageGame({ phaseId, phaseName, ingredients }: StageGameProps) {
+export default function StageGame({ phaseId, phaseName, ingredients, userId }: StageGameProps) {
   const router = useRouter();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [avatarPosition, setAvatarPosition] = useState<MapPoint>(HOME_POSITION);
@@ -98,6 +42,7 @@ export default function StageGame({ phaseId, phaseName, ingredients }: StageGame
   const [movingKey, setMovingKey] = useState<IngredientKey | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Ingredientes da fase filtrados a partir da lista de nomes
   const stageIngredients = useMemo(() => {
     const uniqueKeys = Array.from(
       new Set(
@@ -106,25 +51,24 @@ export default function StageGame({ phaseId, phaseName, ingredients }: StageGame
           .filter((value): value is IngredientKey => value !== null),
       ),
     );
-
     return uniqueKeys.map((key) => ingredientCatalog[key]);
   }, [ingredients]);
 
   const allCollected =
     stageIngredients.length > 0 && stageIngredients.every((ingredient) => collectedKeys[ingredient.key]);
 
+  // Carrega progresso salvo no localStorage
   useEffect(() => {
-    const storageKey = `${STORAGE_PREFIX}-${phaseId}`;
+    const storageKey = `${STORAGE_PREFIX}-${userId}-${phaseId}`;
     const storedValue = window.localStorage.getItem(storageKey);
 
     if (storedValue) {
       try {
         const parsedKeys = JSON.parse(storedValue) as string[];
-        const nextCollected = parsedKeys.reduce<Record<string, boolean>>((accumulator, key) => {
-          accumulator[key] = true;
-          return accumulator;
+        const nextCollected = parsedKeys.reduce<Record<string, boolean>>((acc, key) => {
+          acc[key] = true;
+          return acc;
         }, {});
-
         setCollectedKeys(nextCollected);
       } catch {
         window.localStorage.removeItem(storageKey);
@@ -132,29 +76,22 @@ export default function StageGame({ phaseId, phaseName, ingredients }: StageGame
     }
 
     setHasLoadedProgress(true);
-
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [phaseId]);
 
+  // Persiste progresso no localStorage quando muda
   useEffect(() => {
-    if (!hasLoadedProgress) {
-      return;
-    }
+    if (!hasLoadedProgress) return;
 
-    const storageKey = `${STORAGE_PREFIX}-${phaseId}`;
+    const storageKey = `${STORAGE_PREFIX}-${userId}-${phaseId}`;
     const collectedList = Object.keys(collectedKeys).filter((key) => collectedKeys[key]);
-
     window.localStorage.setItem(storageKey, JSON.stringify(collectedList));
-  }, [collectedKeys, hasLoadedProgress, phaseId]);
+  }, [collectedKeys, hasLoadedProgress, phaseId, userId]);
 
   function handleCollect(ingredient: StageIngredient) {
-    if (isAnimating || collectedKeys[ingredient.key]) {
-      return;
-    }
+    if (isAnimating || collectedKeys[ingredient.key]) return;
 
     setFeedbackKey(null);
     setMovingKey(ingredient.key);
@@ -168,16 +105,9 @@ export default function StageGame({ phaseId, phaseName, ingredients }: StageGame
     }, MOVE_DURATION);
   }
 
-  function closeFeedback() {
-    setFeedbackKey(null);
-  }
-
-  function startQuiz() {
-    if (!feedbackIngredient) {
-      return;
-    }
-
-    router.push(`/kitchen/quiz?phase=${phaseId}&ingredient=${feedbackIngredient.key}`);
+  function handleStartQuiz() {
+    if (!feedbackKey) return;
+    router.push(`/kitchen/quiz?phase=${phaseId}&ingredient=${feedbackKey}&uid=${userId}`);
   }
 
   const feedbackIngredient = feedbackKey ? ingredientCatalog[feedbackKey] : null;
@@ -188,6 +118,7 @@ export default function StageGame({ phaseId, phaseName, ingredients }: StageGame
         <ChevronLeft size={22} />
       </Link>
 
+      {/* Seção do mapa com ingredientes e avatar */}
       <section className={styles.mapCard} aria-label={`Mapa da fase ${phaseName}`}>
         <div className={styles.mapFrame}>
           <Image
@@ -195,8 +126,16 @@ export default function StageGame({ phaseId, phaseName, ingredients }: StageGame
             alt="Mapa da fase"
             fill
             priority
-            className={styles.mapImage}
-            sizes="(max-width: 768px) 100vw, 420px"
+            className={`${styles.mapImage} ${styles.mobileOnly}`}
+            sizes="(max-width: 767px) 100vw, 1px"
+          />
+          <Image
+            src={mapDesktopImage}
+            alt="Mapa da fase"
+            fill
+            priority
+            className={`${styles.mapImage} ${styles.desktopOnly}`}
+            sizes="(min-width: 768px) 420px, 1px"
           />
 
           <div className={styles.mapHeader}>
@@ -204,27 +143,16 @@ export default function StageGame({ phaseId, phaseName, ingredients }: StageGame
             <p className={styles.mapSubtitle}>{getStageObjective(phaseId)}</p>
           </div>
 
-          {stageIngredients.map((ingredient) => {
-            const isCollected = Boolean(collectedKeys[ingredient.key]);
-            const isCurrentTarget = movingKey === ingredient.key;
-
-            return (
-              <button
-                key={ingredient.key}
-                type="button"
-                className={`${styles.marker} ${isCollected ? styles.markerCollected : ""} ${
-                  isCurrentTarget ? styles.markerActive : ""
-                }`}
-                style={{ left: `${ingredient.position.x}%`, top: `${ingredient.position.y}%` }}
-                onClick={() => handleCollect(ingredient)}
-                disabled={isCollected || isAnimating}
-                aria-label={`Coletar ${ingredient.label}`}
-              >
-                <Image src={ingredient.image} alt={ingredient.label} className={styles.markerImage} />
-                {isCollected && <CheckCircle2 size={18} className={styles.markerCheck} />}
-              </button>
-            );
-          })}
+          {stageIngredients.map((ingredient) => (
+            <IngredientMarker
+              key={ingredient.key}
+              ingredient={ingredient}
+              isCollected={Boolean(collectedKeys[ingredient.key])}
+              isActive={movingKey === ingredient.key}
+              isDisabled={Boolean(collectedKeys[ingredient.key]) || isAnimating}
+              onCollect={() => handleCollect(ingredient)}
+            />
+          ))}
 
           <div
             className={`${styles.avatarMarker} ${isAnimating ? styles.avatarMoving : ""}`}
@@ -241,70 +169,20 @@ export default function StageGame({ phaseId, phaseName, ingredients }: StageGame
         </div>
       </section>
 
-      <section className={styles.objectiveSection}>
-        <p className={styles.objectiveLabel}>Missão: encontre todos os ingredientes espalhados pelo mapa.</p>
+      {/* Lista de objetivos */}
+      <ObjectiveList ingredients={stageIngredients} collectedKeys={collectedKeys} />
 
-        <div className={styles.objectiveList}>
-          {stageIngredients.map((ingredient) => {
-            const collected = Boolean(collectedKeys[ingredient.key]);
-
-            return (
-              <article
-                key={ingredient.key}
-                className={`${styles.objectiveItem} ${collected ? styles.objectiveItemCollected : ""}`}
-              >
-                <div className={styles.objectiveIcon}>
-                  <Image src={ingredient.image} alt={ingredient.label} className={styles.objectiveImage} />
-                </div>
-
-                <div className={styles.objectiveInfo}>
-                  <span className={styles.objectiveName}>{ingredient.label}</span>
-                  <span className={styles.objectiveHint}>
-                    {collected ? "Ingrediente encontrado" : "Toque no ingrediente no mapa"}
-                  </span>
-                </div>
-
-                <strong className={styles.objectiveCount}>{collected ? "1/1" : "0/1"}</strong>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
+      {/* Dialog de feedback ao coletar ingrediente */}
       {feedbackIngredient && (
-        <div className={styles.feedbackOverlay} role="presentation">
-          <div className={styles.feedbackCard} role="dialog" aria-modal="true" aria-labelledby="feedback-title">
-            <button type="button" className={styles.feedbackClose} onClick={closeFeedback} aria-label="Fechar aviso">
-              <X size={18} />
-            </button>
-
-            <div className={styles.feedbackIcon}>
-              <Image src={feedbackIngredient.image} alt={feedbackIngredient.label} className={styles.feedbackImage} />
-            </div>
-            <p className={styles.feedbackEyebrow}>Ingrediente encontrado</p>
-            <h2 id="feedback-title" className={styles.feedbackTitle}>
-              {feedbackIngredient.label} coletado
-            </h2>
-            <p className={styles.feedbackText}>Agora responda ao quiz deste ingrediente para avançar na missão.</p>
-
-            <Button onClick={startQuiz}>Iniciar quiz</Button>
-          </div>
-        </div>
+        <FeedbackDialog
+          ingredient={feedbackIngredient}
+          onClose={() => setFeedbackKey(null)}
+          onStartQuiz={handleStartQuiz}
+        />
       )}
 
-      {allCollected && !feedbackIngredient && (
-        <div className={styles.completionBanner}>
-          <div>
-            <p className={styles.completionEyebrow}>Fase concluída</p>
-            <h2 className={styles.completionTitle}>Todos os ingredientes foram encontrados.</h2>
-            <p className={styles.completionText}>Agora é hora de cozinhar o prato final.</p>
-          </div>
-
-          <Button asChild>
-            <Link href={`/kitchen/cook?phase=${phaseId}`}>Cozinhar agora</Link>
-          </Button>
-        </div>
-      )}
+      {/* Banner de conclusão */}
+      {allCollected && !feedbackIngredient && <CompletionBanner phaseId={phaseId} />}
     </div>
   );
 }

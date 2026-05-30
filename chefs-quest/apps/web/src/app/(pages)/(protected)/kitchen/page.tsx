@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { phases } from "../_data/phases";
 import { formatSecondsToMinutes } from "@/lib/utils/format-time";
 import { getUserProgress } from "@/app/actions/progress";
+import { getCurrentUserId } from "@/lib/session";
 import StageGame from "./_components/stage-game";
 import styles from "./kitchen.module.css";
 
@@ -21,21 +22,24 @@ export default async function KitchenPage({ searchParams }: KitchenPageProps) {
   const hasStarted = params.started === "1";
   const phase = phases.find((item) => item.id === phaseId) ?? phases[0];
 
+  // Se já iniciou a fase, renderiza o jogo do mapa
   if (hasStarted) {
-    return <StageGame phaseId={phase.id} phaseName={phase.name} ingredients={phase.ingredients} />;
+    const userId = await getCurrentUserId();
+    return <StageGame phaseId={phase.id} phaseName={phase.name} ingredients={phase.ingredients} userId={userId ?? ""} />;
   }
 
+  // Caso contrário, mostra resumo da fase
   const { completedPhases } = await getUserProgress();
   const isCompleted = completedPhases.includes(phase.id);
 
   return (
     <div className={styles.summaryPage}>
-      <Link href="/home" className={styles.summaryBackLink}>
-        <ChevronLeft size={18} />
+      <Link href="/home" className={styles.summaryBackLink} aria-label="Voltar para fases">
+        <ChevronLeft size={18} aria-hidden="true" />
         Voltar para fases
       </Link>
 
-      <section className={styles.summaryCard}>
+      <section className={styles.summaryCard} aria-label={`Resumo da fase ${phase.name}`}>
         <div className={styles.summaryImageWrap}>
           <Image src={phase.image} alt={phase.name} className={styles.summaryImage} priority />
         </div>

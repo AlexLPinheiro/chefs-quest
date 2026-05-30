@@ -48,15 +48,15 @@ export default function PhaseCard({ duration, image, name, href, variant }: Phas
     const isLocked = variant === "locked";
 
     return (
-    <div className={`${styles.card} ${availability === "locked" ? styles.locked : styles.available}`}>
+    <article className={`${styles.card} ${availability === "locked" ? styles.locked : styles.available}`} aria-label={`Fase: ${name}${isLocked ? " (bloqueada)" : availability === "completed" ? " (concluída)" : ""}`}>
       {isLocked && (
-        <div className={styles.lockBadge}>
+        <div className={styles.lockBadge} aria-hidden="true">
           <Lock size={20} />
         </div>
       )}
 
-      <span className={styles.meta}>
-        <Clock size={20} />
+      <span className={styles.meta} aria-label={`Duração: ${formatSecondsToMinutes(duration)}`}>
+        <Clock size={20} aria-hidden="true" />
         <p className={styles.metaText}>{formatSecondsToMinutes(duration)}</p>
       </span>
 
@@ -73,13 +73,13 @@ export default function PhaseCard({ duration, image, name, href, variant }: Phas
         <h2 className={styles.title}>{name}</h2>
 
         {variantStyles.disabled ? (
-          <Button disabled>{variantStyles.buttonText}</Button>
+          <Button disabled aria-label={`${variantStyles.buttonText} - ${name}`}>{variantStyles.buttonText}</Button>
         ) : (
           <Button asChild>
-            <Link href={href ?? "/kitchen"}>{variantStyles.buttonText}</Link>
+            <Link href={href ?? "/kitchen"} aria-label={`${variantStyles.buttonText} - ${name}`}>{variantStyles.buttonText}</Link>
           </Button>
         )}
       </div>
-    </div>
+    </article>
   );
 }

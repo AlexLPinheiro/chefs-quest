@@ -69,3 +69,36 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+@media (min-width: 768px) {
+  .card {
+    width: min(100%, 28rem);
+    padding: 2.5rem 2rem;
+  }
+
+  .avatar {
+    width: 6rem;
+    height: 6rem;
+    font-size: 2.5rem;
+  }
+
+  .name {
+    font-size: 1.6rem;
+  }
+
+  .statValue {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page {
+    padding-top: 3rem;
+  }
+
+  .card {
+    width: min(100%, 32rem);
+    padding: 3rem 2.5rem;
+    gap: 1.5rem;
+  }
+}

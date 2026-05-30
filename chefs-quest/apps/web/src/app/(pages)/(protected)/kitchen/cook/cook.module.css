@@ -29,6 +29,14 @@
   object-fit: fill;
 }
 
+.mobileOnly {
+  display: block;
+}
+
+.desktopOnly {
+  display: none;
+}
+
 .topBar {
   position: absolute;
   top: 7.8%;
@@ -265,8 +273,44 @@
 }
 
 @media (min-width: 768px) {
+  .mobileOnly {
+    display: none;
+  }
+
+  .desktopOnly {
+    display: block;
+  }
+
   .page {
     align-items: center;
     padding-top: 1rem;
+  }
+
+  .stage {
+    max-width: 36rem;
+    height: min(calc(100dvh - 10rem), 44rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stage {
+    max-width: 42rem;
+    height: min(calc(100dvh - 9rem), 50rem);
+    border-radius: 2rem;
+  }
+
+  .tray {
+    gap: 1rem;
+    padding: 0.85rem 1.2rem;
+  }
+
+  .trayIcon {
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .successCard {
+    max-width: 28rem;
+    padding: 2rem;
   }
 }

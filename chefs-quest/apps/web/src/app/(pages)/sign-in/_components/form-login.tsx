@@ -12,6 +12,7 @@ export default function FormLogin() {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
+    // Autentica o usuário pelo nome e redireciona
     const handleLogin = async (formData: FormData) => {
         setLoading(true);
         const name = formData.get("username") as string;

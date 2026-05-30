@@ -22,15 +22,15 @@ export default async function ProfilePage() {
   const totalPhases = 3;
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <div className={styles.avatar}>
+    <div className={styles.page} aria-label="Perfil do jogador">
+      <div className={styles.card} role="region" aria-label="Informações do perfil">
+        <div className={styles.avatar} aria-hidden="true">
           {(user?.name ?? "?").charAt(0).toUpperCase()}
         </div>
 
         <h1 className={styles.name}>{user?.name ?? "Jogador"}</h1>
 
-        <div className={styles.stats}>
+        <div className={styles.stats} role="group" aria-label="Estatísticas do jogador">
           <div className={styles.stat}>
             <span className={styles.statValue}>{level}</span>
             <span className={styles.statLabel}>Nível</span>

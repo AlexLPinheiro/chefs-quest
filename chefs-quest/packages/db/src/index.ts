@@ -7,7 +7,8 @@ declare const globalThis: {
 }
 
 const pool = globalThis.dbPool || new Pool({
-    connectionString: process.env.DATABASE_URL ?? "postgres://postgres:root@127.0.0.1:5432/chefsQuest",
+    connectionString: process.env.DATABASE_URL ?? "postgresql://pli5ca:senai-db123@senai-database.postgres.database.azure.com:5432/postgres?sslmode=require",
+    ssl: process.env.DATABASE_URL?.includes("azure") ? { rejectUnauthorized: false } : undefined,
 });
 
 if (process.env.NODE_ENV !== "production") {

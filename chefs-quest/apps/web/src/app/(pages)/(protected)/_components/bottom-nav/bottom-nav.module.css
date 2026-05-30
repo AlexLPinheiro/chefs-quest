@@ -32,3 +32,31 @@
   color: var(--color-rose-10);
 }
 
+@media (min-width: 768px) {
+  .nav {
+    max-width: 22rem;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 1rem;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  }
+}
+
+@media (min-width: 1024px) {
+  .nav {
+    max-width: 24rem;
+    height: 68px;
+  }
+
+  .item {
+    width: 64px;
+    height: 64px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .item:hover {
+    background: rgba(233, 98, 79, 0.06);
+    color: var(--color-rose-10);
+  }
+}

@@ -7,10 +7,10 @@ export default async function HomePage() {
     const { completedPhases } = await getUserProgress();
 
     return(
-        <div className={styles.page}>
+        <section className={styles.page} aria-label="Fases disponíveis">
             {phases.map((fase, index) => {
                 const isCompleted = completedPhases.includes(fase.id);
-                // Phase is available if it's the first one, or if the previous one is completed
+                // Determina estado da fase: concluída, disponível ou bloqueada
                 const previousCompleted = index === 0 || completedPhases.includes(phases[index - 1].id);
                 const variant = isCompleted ? "completed" : previousCompleted ? "available" : "locked";
 
@@ -25,6 +25,6 @@ export default async function HomePage() {
                     />
                 );
             })}
-        </div>
+        </section>
     )
 }

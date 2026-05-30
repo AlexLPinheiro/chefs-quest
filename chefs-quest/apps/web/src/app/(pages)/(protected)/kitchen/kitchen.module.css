@@ -161,6 +161,14 @@
   object-fit: cover;
 }
 
+.mobileOnly {
+  display: block;
+}
+
+.desktopOnly {
+  display: none;
+}
+
 .mapHeader {
   position: absolute;
   top: 1rem;
@@ -513,9 +521,22 @@
 }
 
 @media (min-width: 768px) {
+  .mobileOnly {
+    display: none;
+  }
+
+  .desktopOnly {
+    display: block;
+  }
+
   .summaryPage,
   .stagePage {
     padding-inline: 1.5rem;
+  }
+
+  .summaryPage {
+    max-width: 48rem;
+    margin: 0 auto;
   }
 
   .summaryCard {
@@ -525,13 +546,68 @@
   }
 
   .stagePage {
-    max-width: 28rem;
+    max-width: 36rem;
     margin: 0 auto;
+  }
+
+  .mapFrame {
+    aspect-ratio: 1;
+  }
+
+  .marker {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .avatarMarker {
+    width: 5.5rem;
+    height: 5.5rem;
   }
 
   .completionBanner {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .feedbackCard {
+    max-width: 28rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .summaryPage {
+    max-width: 56rem;
+    padding: 2rem;
+  }
+
+  .summaryCard {
+    grid-template-columns: minmax(20rem, 26rem) 1fr;
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  .summaryTitle {
+    font-size: 2.2rem;
+  }
+
+  .summaryList {
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  }
+
+  .stagePage {
+    max-width: 42rem;
+  }
+
+  .mapCard {
+    border-radius: 2.2rem;
+  }
+
+  .mapFrame {
+    aspect-ratio: 1.2;
+  }
+
+  .objectiveList {
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
   }
 }
