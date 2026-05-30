@@ -2,7 +2,6 @@ import { StaticImageData } from "next/image";
 import macarrao from "@/app/assets/image/macarrao.png";
 import hamburguer from "@/app/assets/image/hambug.png";
 import lasanha from "@/app/assets/image/lasanha.png";
-import { PhaseCardVariant } from "../home/_components/phase-card/phase-card";
 
 export type Phase = {
   id: number;
@@ -10,7 +9,6 @@ export type Phase = {
   image: StaticImageData;
   ingredients: string[];
   name: string;
-  variant?: PhaseCardVariant;
 };
 
 export const phases: Phase[] = [
@@ -20,7 +18,6 @@ export const phases: Phase[] = [
     image: macarrao,
     ingredients: ["Macarrão", "Molho de tomate", "Queijo ralado"],
     name: "Macarronada",
-    variant: "available",
   },
   {
     id: 2,
@@ -28,7 +25,6 @@ export const phases: Phase[] = [
     image: hamburguer,
     ingredients: ["Pão", "Carne", "Queijo cheddar", "Alface"],
     name: "Hambúrguer",
-    variant: "locked",
   },
   {
     id: 3,
@@ -36,6 +32,5 @@ export const phases: Phase[] = [
     image: lasanha,
     ingredients: ["Massa", "Molho bolonhesa", "Presunto", "Muçarela"],
     name: "Lasanha",
-    variant: "available",
   },
 ];

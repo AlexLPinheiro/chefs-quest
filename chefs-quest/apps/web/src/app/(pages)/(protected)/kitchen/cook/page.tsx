@@ -3,14 +3,16 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { phases } from "../../_data/phases";
 import { Button } from "@/components/ui/button";
-import baseStyles from "../kitchen.module.css";
+import { completePhase } from "@/app/actions/progress";
+import kitchenImage from "@/app/assets/image/cozinha.png";
 import tomatoImage from "@/app/assets/image/tomate.png";
 import eggImage from "@/app/assets/image/ovo.png";
 import cheeseImage from "@/app/assets/image/queijo.png";
+import baseStyles from "../kitchen.module.css";
 import styles from "./cook.module.css";
 
 type IngredientKey = "tomate" | "ovo" | "queijo";
@@ -33,20 +35,22 @@ const COOK_INGREDIENTS: Ingredient[] = [
 ];
 
 const INITIAL_POSITION: DragPosition = { left: 0, top: 0 };
+const TIMER_SECONDS = 30;
 
 export default function CookPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const phaseId = Number(searchParams.get("phase") ?? "1");
   const phase = phases.find((item) => item.id === phaseId) ?? phases[0];
 
   const potRef = useRef<HTMLDivElement>(null);
-  const offsetRef = useRef({ x: 0, y: 0 });
   const activeKeyRef = useRef<IngredientKey | null>(null);
   const [placedIngredients, setPlacedIngredients] = useState<IngredientKey[]>([]);
   const [draggingKey, setDraggingKey] = useState<IngredientKey | null>(null);
   const [dragPosition, setDragPosition] = useState<DragPosition>(INITIAL_POSITION);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+  const [timerExpired, setTimerExpired] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const remainingIngredients = useMemo(
     () => COOK_INGREDIENTS.filter((ingredient) => !placedIngredients.includes(ingredient.key)),
@@ -63,19 +67,47 @@ export default function CookPage() {
 
   const allPlaced = placedIngredients.length === COOK_INGREDIENTS.length;
 
+  // Timer countdown
   useEffect(() => {
-    if (!draggingKey) {
-      return;
+    if (showSuccess || timerExpired) return;
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          setTimerExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [showSuccess, timerExpired]);
+
+  useEffect(() => {
+    if (allPlaced) {
+      setShowSuccess(true);
+      if (timerRef.current) clearInterval(timerRef.current);
+      completePhase(phaseId);
     }
+  }, [allPlaced, phaseId]);
+
+  useEffect(() => {
+    if (!draggingKey) return;
 
     function handlePointerMove(event: PointerEvent) {
+      event.preventDefault();
       setDragPosition({
-        left: event.clientX - offsetRef.current.x,
-        top: event.clientY - offsetRef.current.y,
+        left: event.clientX,
+        top: event.clientY,
       });
     }
 
     function handlePointerUp(event: PointerEvent) {
+      const key = activeKeyRef.current;
       const potRect = potRef.current?.getBoundingClientRect();
       const isInsidePot =
         potRect &&
@@ -84,11 +116,9 @@ export default function CookPage() {
         event.clientY >= potRect.top &&
         event.clientY <= potRect.bottom;
 
-      if (isInsidePot && activeKeyRef.current) {
+      if (isInsidePot && key) {
         setPlacedIngredients((current) =>
-          current.includes(activeKeyRef.current as IngredientKey)
-            ? current
-            : [...current, activeKeyRef.current as IngredientKey],
+          current.includes(key) ? current : [...current, key],
         );
       }
 
@@ -96,37 +126,41 @@ export default function CookPage() {
       setDraggingKey(null);
     }
 
-    window.addEventListener("pointermove", handlePointerMove);
+    function handlePointerCancel() {
+      activeKeyRef.current = null;
+      setDraggingKey(null);
+    }
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: false });
     window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerCancel);
 
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerCancel);
     };
   }, [draggingKey]);
 
-  useEffect(() => {
-    if (allPlaced) {
-      setShowSuccess(true);
-    }
-  }, [allPlaced]);
-
-  function handlePointerDown(event: ReactPointerEvent<HTMLButtonElement>, ingredient: Ingredient) {
-    if (placedIngredients.includes(ingredient.key)) {
+  function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>, ingredient: Ingredient) {
+    if (placedIngredients.includes(ingredient.key) || timerExpired) {
       return;
     }
 
-    const rect = event.currentTarget.getBoundingClientRect();
-    offsetRef.current = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    };
+    event.preventDefault();
+    (event.target as HTMLElement).releasePointerCapture?.(event.pointerId);
     activeKeyRef.current = ingredient.key;
     setDraggingKey(ingredient.key);
     setDragPosition({
-      left: event.clientX - offsetRef.current.x,
-      top: event.clientY - offsetRef.current.y,
+      left: event.clientX,
+      top: event.clientY,
     });
+  }
+
+  function formatTime(seconds: number) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   }
 
   return (
@@ -135,64 +169,58 @@ export default function CookPage() {
         <ChevronLeft size={22} />
       </Link>
 
-      <section className={styles.topBar}>
-        <div className={styles.energyPill}>65% ENERGIA!</div>
-        <div className={styles.energyTrack}>
-          <span className={styles.energyFill} />
-        </div>
-      </section>
-
       <section className={styles.stage} aria-label={`Etapa de cozinha da fase ${phase.name}`}>
-        <div className={`${styles.shelf} ${styles.shelfTop}`} aria-hidden="true" />
-        <div className={`${styles.shelf} ${styles.shelfMid}`} aria-hidden="true" />
-        <div className={`${styles.shelf} ${styles.shelfBottom}`} aria-hidden="true" />
+        <Image
+          src={kitchenImage}
+          alt=""
+          fill
+          priority
+          className={styles.stageImage}
+          sizes="(max-width: 768px) 100vw, 420px"
+        />
 
-        <div className={styles.instruction}>Arraste os ingredientes para a panela</div>
+        <section className={styles.topBar} aria-label="Timer da etapa">
+          <div className={`${styles.energyPill} ${timeLeft <= 10 ? styles.energyPillUrgent : ""}`}>
+            {formatTime(timeLeft)}
+          </div>
+        </section>
 
-        <div className={styles.potArea}>
-          <div className={styles.flame} aria-hidden="true" />
-          <div className={styles.stove} aria-hidden="true" />
-
-          <div ref={potRef} className={styles.pot} aria-label="Panela">
-            <div className={styles.potRim} />
-            <div className={styles.potBody} />
-            <div className={styles.potHandleLeft} />
-            <div className={styles.potHandleRight} />
-
-            <div className={styles.potContents}>
-              {placedObjects.map((ingredient, index) => (
-                <span
-                  key={ingredient.key}
-                  className={styles.potIngredient}
-                  style={{ transform: `translate(${index * 0.85}rem, ${index % 2 === 0 ? "0" : "0.25rem"})` }}
-                >
-                  <Image src={ingredient.image} alt={ingredient.label} className={styles.potIngredientImage} />
-                </span>
-              ))}
-            </div>
+        <div
+          ref={potRef}
+          className={`${styles.potDropZone} ${draggingKey ? styles.potDropZoneActive : ""}`}
+          aria-label="Panela"
+        >
+          <div className={styles.potContents}>
+            {placedObjects.map((ingredient, index) => (
+              <span
+                key={ingredient.key}
+                className={styles.potIngredient}
+                style={{ transform: `translate(${index * 0.85}rem, ${index % 2 === 0 ? "0" : "0.25rem"})` }}
+              >
+                <Image src={ingredient.image} alt={ingredient.label} className={styles.potIngredientImage} />
+              </span>
+            ))}
           </div>
         </div>
 
-        <div className={styles.dragHint} aria-hidden="true">
-          <span className={styles.dragCircle} />
-          <span className={styles.dragText}>Arraste para cá</span>
-        </div>
-
         <div className={styles.tray}>
-          {remainingIngredients.map((ingredient) => (
-            <button
-              key={ingredient.key}
-              type="button"
-              className={styles.trayItem}
-              onPointerDown={(event) => handlePointerDown(event, ingredient)}
-              aria-label={`Arrastar ${ingredient.label}`}
-              style={draggingKey === ingredient.key ? { opacity: 0.15 } : undefined}
-            >
-              <span className={styles.trayIcon}>
-                <Image src={ingredient.image} alt={ingredient.label} className={styles.trayImage} />
-              </span>
-            </button>
-          ))}
+          {COOK_INGREDIENTS.map((ingredient) => {
+            const isPlaced = placedIngredients.includes(ingredient.key);
+            const isDragging = draggingKey === ingredient.key;
+            return (
+              <div
+                key={ingredient.key}
+                className={`${styles.trayItem} ${isPlaced ? styles.trayItemPlaced : ""}`}
+                onPointerDown={(event) => handlePointerDown(event, ingredient)}
+                aria-label={`Arrastar ${ingredient.label}`}
+                style={isDragging ? { opacity: 0.15 } : undefined}
+              >
+                <span className={styles.trayIcon}>
+                  <Image src={ingredient.image} alt={ingredient.label} className={styles.trayImage} />
+                </span>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -224,9 +252,23 @@ export default function CookPage() {
         </div>
       ) : null}
 
-      {allPlaced ? null : (
-        <div className={styles.footerNote}>Complete a panela para finalizar a fase.</div>
-      )}
+      {timerExpired && !showSuccess ? (
+        <div className={styles.successOverlay} role="presentation">
+          <div className={styles.successCard} role="dialog" aria-modal="true" aria-labelledby="timeout-title">
+            <p className={styles.successBadge} style={{ color: "#d32f2f" }}>Tempo esgotado!</p>
+            <h2 id="timeout-title" className={styles.successTitle}>
+              Não foi dessa vez
+            </h2>
+            <p className={styles.successText}>O tempo acabou antes de completar a receita. Tente novamente!</p>
+
+            <Button asChild>
+              <Link href={`/kitchen?phase=${phase.id}&started=1`}>Tentar novamente</Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      {allPlaced || timerExpired ? null : <div className={styles.footerNote}>Complete a panela para finalizar a fase.</div>}
     </div>
   );
 }

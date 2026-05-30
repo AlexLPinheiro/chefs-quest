@@ -7,7 +7,7 @@ import { formatSecondsToMinutes } from "@/lib/utils/format-time";
 import { Clock , Lock} from "lucide-react";
 import styles from "./phase-card.module.css";
 
-export type PhaseCardVariant = "available" | "locked";
+export type PhaseCardVariant = "available" | "locked" | "completed";
 
 type PhaseCardProps = {
     duration: number;
@@ -27,7 +27,12 @@ const phaseCardVariants = {
     },
     locked: {
     card: styles.locked,
-        buttonText: "Buscar ingredientes",
+        buttonText: "Bloqueada",
+        disabled: true,
+    },
+    completed: {
+    card: styles.available,
+        buttonText: "Concluída ✓",
         disabled: true,
     },
 };
@@ -62,17 +67,18 @@ export default function PhaseCard({ duration, image, name, href, variant }: Phas
           width={200}
           height={200}
           className={styles.image}
+          style={{ width: "auto", height: "auto" }}
         />
 
         <h2 className={styles.title}>{name}</h2>
 
-        <Button asChild={!variantStyles.disabled} disabled={variantStyles.disabled}>
-          {variantStyles.disabled ? (
-            <button type="button">{variantStyles.buttonText}</button>
-          ) : (
+        {variantStyles.disabled ? (
+          <Button disabled>{variantStyles.buttonText}</Button>
+        ) : (
+          <Button asChild>
             <Link href={href ?? "/kitchen"}>{variantStyles.buttonText}</Link>
-          )}
-        </Button>
+          </Button>
+        )}
       </div>
     </div>
   );

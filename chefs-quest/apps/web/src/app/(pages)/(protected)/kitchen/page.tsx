@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, Play } from "lucide-react";
+import { ChevronLeft, Play, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { phases } from "../_data/phases";
 import { formatSecondsToMinutes } from "@/lib/utils/format-time";
+import { getUserProgress } from "@/app/actions/progress";
 import StageGame from "./_components/stage-game";
 import styles from "./kitchen.module.css";
 
@@ -24,6 +25,9 @@ export default async function KitchenPage({ searchParams }: KitchenPageProps) {
     return <StageGame phaseId={phase.id} phaseName={phase.name} ingredients={phase.ingredients} />;
   }
 
+  const { completedPhases } = await getUserProgress();
+  const isCompleted = completedPhases.includes(phase.id);
+
   return (
     <div className={styles.summaryPage}>
       <Link href="/home" className={styles.summaryBackLink}>
@@ -37,7 +41,9 @@ export default async function KitchenPage({ searchParams }: KitchenPageProps) {
         </div>
 
         <div className={styles.summaryContent}>
-          <span className={styles.summaryBadge}>Resumo da fase</span>
+          <span className={styles.summaryBadge}>
+            {isCompleted ? "Fase concluída ✓" : "Resumo da fase"}
+          </span>
           <h1 className={styles.summaryTitle}>{phase.name}</h1>
 
           <div className={styles.summaryMeta}>
@@ -55,12 +61,19 @@ export default async function KitchenPage({ searchParams }: KitchenPageProps) {
             </ul>
           </div>
 
-          <Button asChild>
-            <Link href={`/kitchen?phase=${phase.id}&started=1`}>
-              <Play size={18} />
-              Iniciar
-            </Link>
-          </Button>
+          {isCompleted ? (
+            <Button disabled>
+              <CheckCircle2 size={18} />
+              Já concluída
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link href={`/kitchen?phase=${phase.id}&started=1`}>
+                <Play size={18} />
+                Iniciar
+              </Link>
+            </Button>
+          )}
         </div>
       </section>
     </div>

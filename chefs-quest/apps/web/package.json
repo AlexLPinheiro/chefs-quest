@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@repo/db": "workspace:*",
     "bcrypt": "^6.0.0",
     "better-auth": "^1.6.11",
     "jsonwebtoken": "^9.0.3",
