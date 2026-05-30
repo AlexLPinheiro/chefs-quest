@@ -8,6 +8,13 @@
       "when": 1775698644631,
       "tag": "0000_stale_gamma_corps",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780103934793,
+      "tag": "0001_clumsy_human_torch",
+      "breakpoints": true
     }
   ]
 }

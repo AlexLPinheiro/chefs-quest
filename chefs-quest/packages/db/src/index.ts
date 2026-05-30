@@ -7,7 +7,7 @@ declare const globalThis: {
 }
 
 const pool = globalThis.dbPool || new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL ?? "postgres://postgres:root@127.0.0.1:5432/chefsQuest",
 });
 
 if (process.env.NODE_ENV !== "production") {
